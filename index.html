@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Vestir al Capibara 🌌✨</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: linear-gradient(135deg, #0f0c20 0%, #06040a 100%);
+            --primary: #bf55ec;
+            --primary-glow: rgba(191, 85, 236, 0.4);
+            --card-bg: rgba(20, 16, 35, 0.7);
+            --text-main: #f3f0ff;
+            --text-muted: #a29bfe;
+            --border: rgba(191, 85, 236, 0.25);
+        }
+
+        body {
+            margin: 0;
+            padding: 10px;
+            background: var(--bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Título Galáctico */
+        .titulo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #e8a7ff, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 2px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px rgba(191, 85, 236, 0.3);
+        }
+
+        .subtitulo {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0 0 15px 0;
+        }
+
+        /* Contenedor del Juego Universo */
+        .contenedor-juego {
+            width: 100%;
+            max-width: 360px;
+            height: 580px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 32px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(191, 85, 236, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        /* Fondo de estrellas decorativas */
+        .estrellas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 65%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, #fff 1px, transparent 1px),
+                radial-gradient(circle at 75% 15%, #fff 1px, transparent 1px),
+                radial-gradient(circle at 85% 60%, rgba(255,255,255,0.7) 1px, transparent 1px),
+                radial-gradient(circle at 15% 70%, #fff 1.5px, transparent 1px);
+            background-size: 100% 100%;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* Escenario del Capibara */
+        .area-capibara {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 240px;
+            height: 310px;
+            z-index: 1;
+        }
+
+        .capa-personaje {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .outfit-layer {
+            display: none;
+        }
+        .outfit-layer.active {
+            display: block;
+        }
+
+        /* Menú e Interfaz Inferior Oscura */
+        .closet-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: rgba(14, 11, 26, 0.9);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .menu-pestanas {
+            display: flex;
+            background: rgba(191, 85, 236, 0.05);
+            border-bottom: 1px solid rgba(191, 85, 236, 0.15);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: rgba(20, 16, 35, 0.5);
+            border-bottom: 2px solid var(--primary);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* Vitrina / Rejilla de Opciones */
+        .vitrina-items {
+            flex: 1;
+            padding: 10px 15px;
+            display: none;
+            gap: 15px;
+            overflow-x: auto;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .vitrina-items.active {
+            display: flex;
+        }
+
+        .vitrina-items::-webkit-scrollbar { height: 4px; }
+        .vitrina-items::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        /* Botones del Clóset Neon */
+        .item-opcion {
+            width: 70px;
+            height: 70px;
+            background: rgba(30, 25, 50, 0.6);
+            border: 1px solid rgba(191, 85, 236, 0.15);
+            border-radius: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .item-opcion:hover {
+            transform: scale(1.05);
+            background: rgba(45, 35, 75, 0.8);
+            border-color: var(--primary);
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .item-opcion.seleccionado {
+            background: rgba(191, 85, 236, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .item-opcion svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Botón de Reinicio Estilo Galaxia */
+        .btn-reset {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(30, 25, 50, 0.7);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 15;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+        }
+        .btn-reset:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+            background: rgba(45, 35, 75, 0.8);
+        }
+        .btn-reset:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+
+    <h1 class="titulo">Juego de Vestir al Capibara</h1>
+    <p class="subtitulo">¡Toca las prendas para armar el outfit del carpincho!</p>
+
+    <div class="contenedor-juego">
+        <div class="estrellas"></div>
+        <button class="btn-reset" onclick="reiniciarOutfit()" title="Quitar todo">🧼</button>
+
+        <div class="area-capibara">
+            
+            <svg class="capa-personaje" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="105" cy="235" rx="55" ry="8" fill="#080512"/>
+                
+                <path d="M60 215c0 0-5 18-3 20c3 2 15 2 18-1c2-3-2-19-2-19z" fill="#af7b56" stroke="#4a2e19" stroke-width="2"/>
+                <path d="M57 234h16" stroke="#4a2e19" stroke-width="2" stroke-linecap="round"/>
+                <path d="M125 215c0 0-2 18 1 20c3 2 15 2 17-1c2-3-2-19-2-19z" fill="#af7b56" stroke="#4a2e19" stroke-width="2"/>
+                <path d="M125 234h14" stroke="#4a2e19" stroke-width="2" stroke-linecap="round"/>
+                
+                <path d="M85 20c25 0 55 10 55 45c0 20-10 35-10 50c0 20 15 40 15 65c0 40-25 55-60 55s-55-15-55-55c0-25 15-45 15-65c0-15-10-30-10-50c0-35 25-45 55-45z" fill="#d39e73" stroke="#4a2e19" stroke-width="2.5"/>
+                
+                <path d="M52 24c-5-1-12 5-10 14c2 7 11 6 13 0z" fill="#d39e73" stroke="#4a2e19" stroke-width="2"/>
+                <path d="M50 27c-3 0-7 4-6 9c1 4 7 4 8 0z" fill="#f4a261"/>
+                <path d="M118 22c5-1 12 5 10 14c-2 7-11 6-13 0z" fill="#d39e73" stroke="#4a2e19" stroke-width="2"/>
+                <path d="M120 25c3 0 7 4 6 9c-1 4-7 4-8 0z" fill="#f4a261"/>
+                
+                <path d="M65 110c0 0 15-10 25-10s20 10 20 10" stroke="#4a2e19" stroke-width="1.5" stroke-linecap="round"/>
+                
+                <path d="M55 52c0-15 15-22 30-22s22 7 22 22s-7 32-22 32s-30-17-30-32z" fill="#8a6242" stroke="#4a2e19" stroke-width="2"/>
+                <path d="M73 44h14M80 44v10m0 0c0 4-4 6-7 6m7-6c0 4 4 6 7 6" stroke="#2c1a0c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                
+                <rect x="77" y="60" width="3" height="5" fill="#ffffff" stroke="#4a2e19" stroke-width="1"/>
+                <rect x="80" y="60" width="3" height="5" fill="#ffffff" stroke="#4a2e19" stroke-width="1"/>
+                
+                <circle cx="112" cy="42" r="4.5" fill="#2c1a0c"/>
+                <circle cx="113" cy="40" r="1.2" fill="#ffffff"/>
+                <path d="M108 36a6 6 0 0 1 8 0" stroke="#4a2e19" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                
+                <path d="M48 115c2 8 10 14 18 10c6-3 8-12 4-18" fill="#d39e73" stroke="#4a2e19" stroke-width="2"/>
+                <path d="M58 123c2 2 8 0 10-4" stroke="#4a2e19" stroke-width="2" stroke-linecap="round" fill="none"/>
+                <path d="M122 113c-2 8-10 14-18 10c-6-3-8-12-4-18" fill="#d39e73" stroke="#4a2e19" stroke-width="2"/>
+                <path d="M112 121c-2 2-8 0-10-4" stroke="#4a2e19" stroke-width="2" stroke-linecap="round" fill="none"/>
+            </svg>
+
+            <svg id="layer-camisa" class="capa-personaje outfit-layer" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M41 125c1-10 15-27 44-27s42 17 43 27c3 22-1 62-11 67H53c-11-5-14-45-11-67z" fill="#a5f3fc" stroke="#0891b2" stroke-width="2"/>
+                <path d="M53 103l26 15l7-10M133 103l-26 15l-7-10" fill="#bae6fd" stroke="#0891b2" stroke-width="2"/>
+                <line x1="85" y1="108" x2="85" y2="190" stroke="#0891b2" stroke-width="2" stroke-dasharray="4,4"/>
+                <circle cx="85" cy="125" r="3" fill="#0891b2"/>
+                <circle cx="85" cy="145" r="3" fill="#0891b2"/>
+                <circle cx="85" cy="165" r="3" fill="#0891b2"/>
+            </svg>
+
+            <svg id="layer-pumas" class="capa-personaje outfit-layer" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M41 125c1-10 15-27 44-27s42 17 43 27c3 22-1 62-11 67H53c-11-5-14-45-11-67z" fill="#0f172a" stroke="#1e293b" stroke-width="2"/>
+                <path d="M70 98l15 18l15-18" fill="none" stroke="#f59e0b" stroke-width="3"/>
+                <path d="M85 125l-16 20h9l6 12l6-12h9l-16-20z" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>
+                <circle cx="85" cy="133" r="7" fill="#f59e0b"/>
+            </svg>
+
+            <svg id="layer-sueter" class="capa-personaje outfit-layer" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M41 125c1-10 15-27 44-27s42 17 43 27c3 22-1 62-11 67H53c-11-5-14-45-11-67z" fill="#fbcfe8" stroke="#f472b6" stroke-width="2"/>
+                <path d="M85 105v85" stroke="#f472b6" stroke-width="1.5" stroke-dasharray="3,3"/>
+                <circle cx="85" cy="118" r="4" fill="#ec4899"/>
+                <path d="M85 118l-12-7v14zM85 118l12-7v14z" fill="#ec4899"/>
+            </svg>
+
+            <svg id="layer-lentes" class="capa-personaje outfit-layer" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="72" y="34" width="24" height="17" rx="5" fill="#1e293b" stroke="#0f172a" stroke-width="1.5"/>
+                <rect x="102" y="34" width="24" height="17" rx="5" fill="#1e293b" stroke="#0f172a" stroke-width="1.5"/>
+                <path d="M96 41h6" stroke="#1e293b" stroke-width="3"/>
+                <path d="M76 38l4 6M106 38l4 6" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+
+            <svg id="layer-mochila" class="capa-personaje outfit-layer" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="22" y="115" width="26" height="45" rx="6" fill="#f97316" stroke="#ea580c" stroke-width="2"/>
+                <rect x="22" y="130" width="8" height="20" rx="2" fill="#ffedd5"/>
+            </svg>
+
+            <svg id="layer-sandia" class="capa-personaje outfit-layer" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M85 140c0 12 10 18 14 18s14-6 14-18H85z" fill="#ef4444" stroke="#b91c1c" stroke-width="1"/>
+                <path d="M83 140c0 14 12 21 16 21s16-7 16-21" stroke="#22c55e" stroke-width="3.5" fill="none"/>
+                <circle cx="91" cy="146" r="1" fill="#000"/><circle cx="99" cy="151" r="1" fill="#000"/><circle cx="107" cy="146" r="1" fill="#000"/>
+            </svg>
+
+            <svg id="layer-rana" class="capa-personaje outfit-layer" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M52 23c0-14 20-19 33-19s33 5 33 19H52z" fill="#4ade80" stroke="#166534" stroke-width="2"/>
+                <circle cx="67" cy="6" r="7" fill="#4ade80" stroke="#166534" stroke-width="2"/><circle cx="67" cy="6" r="3" fill="#fff"/><circle cx="67" cy="6" r="1" fill="#000"/>
+                <circle cx="103" cy="6" r="7" fill="#4ade80" stroke="#166534" stroke-width="2"/><circle cx="103" cy="6" r="3" fill="#fff"/><circle cx="103" cy="6" r="1" fill="#000"/>
+                <path d="M78 15q7 4 14 0" stroke="#166534" stroke-width="2" fill="none"/>
+            </svg>
+
+            <svg id="layer-corona" class="capa-personaje outfit-layer" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M54 24l5-16 11 11 15-15 15 15 5-16 5 16H54z" fill="#facc15" stroke="#ca8a04" stroke-width="2"/>
+                <circle cx="85" cy="4" r="3" fill="#ef4444"/>
+            </svg>
+
+            <svg id="layer-chef" class="capa-personaje outfit-layer" viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M56 16c-6-6-2-16 6-16c3-7 14-9 18-3c6-6 16-2 16 6c3 5 1 13-5 14z" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+                <rect x="54" y="14" width="62" height="11" fill="#ffffff" stroke="#94a3b8" stroke-width="2" rx="3"/>
+            </svg>
+
+        </div>
+
+        <div class="closet-container">
+            <div class="menu-pestanas">
+                <button class="tab-btn active" onclick="cambiarPestana('sombreros', this)">👒 Gorros</button>
+                <button class="tab-btn" onclick="cambiarPestana('ropa', this)">👕 Ropa</button>
+                <button class="tab-btn" onclick="cambiarPestana('accesorios', this)">✨ Extras</button>
+            </div>
+
+            <div class="vitrina-items active" id="cat-sombreros">
+                <div class="item-opcion" onclick="togglePrenda('rana', 'sombreros', this)">
+                    <svg viewBox="0 0 70 45"><path d="M10 32C10 16 25 10 35 10S60 16 60 32H10z" fill="#4ade80"/><circle cx="22" cy="12" r="7" fill="#4ade80"/><circle cx="22" cy="12" r="3" fill="#fff"/><circle cx="48" cy="12" r="7" fill="#4ade80"/><circle cx="48" cy="12" r="3" fill="#fff"/></svg>
+                </div>
+                <div class="item-opcion" onclick="togglePrenda('corona', 'sombreros', this)">
+                    <svg viewBox="0 0 60 40"><path d="M10 32l5-18 11 11 14-15 14 15 5-18 5 18H10z" fill="#facc15"/></svg>
+                </div>
+                <div class="item-opcion" onclick="togglePrenda('chef', 'sombreros', this)">
+                    <svg viewBox="0 0 60 50"><path d="M16 26c-6-6-2-16 6-16c3-7 14-9 18-3c6-6 16-2 16 6z" fill="#fff" stroke="#ccc"/><rect x="14" y="24" width="32" height="11" fill="#fff" stroke="#ccc" rx="2"/></svg>
+                </div>
+            </div>
+
+            <div class="vitrina-items" id="cat-ropa">
+                <div class="item-opcion" onclick="togglePrenda('camisa', 'ropa', this)">
+                    <svg viewBox="0 0 70 70"><path d="M10 25c5-10 40-10 50 0c5 15 2 35-5 40H15C8 60 5 40 10 25z" fill="#a5f3fc"/><path d="M15 20l15 10M55 20L40 30" stroke="#0891b2" stroke-width="2"/></svg>
+                </div>
+                <div class="item-opcion" onclick="togglePrenda('pumas', 'ropa', this)">
+                    <svg viewBox="0 0 70 70"><path d="M10 25c5-10 40-10 50 0c5 15 2 35-5 40H15C8 60 5 40 10 25z" fill="#0f172a"/><path d="M35 30l-10 12h5l3 6l3-6h5z" fill="#f59e0b"/></svg>
+                </div>
+                <div class="item-opcion" onclick="togglePrenda('sueter', 'ropa', this)">
+                    <svg viewBox="0 0 70 70"><path d="M10 25c5-10 40-10 50 0c5 15 2 35-5 40H15C8 60 5 40 10 25z" fill="#fbcfe8"/><circle cx="35" cy="35" r="3" fill="#ec4899"/></svg>
+                </div>
+            </div>
+
+            <div class="vitrina-items" id="cat-accesorios">
+                <div class="item-opcion" onclick="togglePrenda('lentes', 'accesorios', this)">
+                    <svg viewBox="0 0 60 30"><rect x="5" y="6" width="22" height="16" rx="5" fill="#1e293b"/><rect x="34" y="6" width="22" height="16" rx="5" fill="#1e293b"/></svg>
+                </div>
+                <div class="item-opcion" onclick="togglePrenda('mochila', 'accesorios', this)">
+                    <svg viewBox="0 0 50 50"><rect x="10" y="10" width="30" height="30" rx="6" fill="#f97316"/></svg>
+                </div>
+                <div class="item-opcion" onclick="togglePrenda('sandia', 'accesorios', this)">
+                    <svg viewBox="0 0 45 45"><path d="M6 16c0 14 12 22 16 22s16-8 16-22H6z" fill="#ef4444"/><path d="M4 16c0 16 14 25 18 25s18-9 18-25" stroke="#22c55e" stroke-width="3" fill="none"/></svg>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function cambiarPestana(idCat, botonActivo) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.vitrina-items').forEach(v => v.classList.remove('active'));
+            
+            botonActivo.classList.add('active');
+            document.getElementById('cat-' + idCat).classList.add('active');
+        }
+
+        function togglePrenda(idPrenda, categoria, elementoBoton) {
+            const capaOutfit = document.getElementById('layer-' + idPrenda);
+            const esActiva = capaOutfit.classList.contains('active');
+
+            if (categoria === 'ropa' || categoria === 'sombreros') {
+                document.querySelectorAll('#cat-' + categoria + ' .item-opcion').forEach(b => b.classList.remove('seleccionado'));
+                
+                if(categoria === 'ropa') {
+                    document.getElementById('layer-camisa').classList.remove('active');
+                    document.getElementById('layer-pumas').classList.remove('active');
+                    document.getElementById('layer-sueter').classList.remove('active');
+                } else {
+                    document.getElementById('layer-rana').classList.remove('active');
+                    document.getElementById('layer-corona').classList.remove('active');
+                    document.getElementById('layer-chef').classList.remove('active');
+                }
+            }
+
+            if (esActiva) {
+                capaOutfit.classList.remove('active');
+                elementoBoton.classList.remove('seleccionado');
+            } else {
+                capaOutfit.classList.add('active');
+                elementoBoton.classList.add('seleccionado');
+            }
+        }
+
+        function reiniciarOutfit() {
+            document.querySelectorAll('.outfit-layer').forEach(layer => layer.classList.remove('active'));
+            document.querySelectorAll('.item-opcion').forEach(btn => btn.classList.remove('seleccionado'));
+        }
+    </script>
+</body>
+</html>
